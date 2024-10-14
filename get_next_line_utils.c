@@ -12,8 +12,7 @@
 
 #include "get_next_line.h"
 
-char	*d_less_len(char *dest, const char *s, unsigned int start,
-		size_t len)
+char	*d_less_len(char *dest, const char *s, unsigned int start, size_t len)
 {
 	size_t	d;
 
@@ -87,14 +86,14 @@ char	*ft_strjoin(char const *s1, char const *s2)
 }
 char	*ft_strdup(const char *s)
 {
-	char	*dest;
-	int		i;
+	char *dest;
+	int i;
 
 	i = ft_strlen(s);
 	dest = malloc((i + 1) * sizeof(char));
 	if (dest == NULL)
 		return (NULL);
-	while(s[i])
+	while (s[i])
 	{
 		dest[i] = s[i];
 		i++;

@@ -54,8 +54,9 @@ char *get_next_line(int fd)
 		free(container);
 	}
 	container = NULL;
-	while((bts_read = read(fd,(char *)buffer,BUFFER_SIZE)) > 0)
+	while((bts_read = read(fd,buffer,BUFFER_SIZE)) > 0)
 	{
+		buffer[bts_read] = '\0';
 		line = make_line(&container,buffer,bts_read,line);
 		if(container)
 			return(line);
@@ -64,3 +65,26 @@ char *get_next_line(int fd)
 		return(line);
 	return(NULL);
 }
+/*int main(void)
+{
+    // Abre el archivo en modo lectura
+    int fd = open("prueba.txt", O_RDONLY);
+    if (fd == -1)
+    {
+        printf("Error al abrir el archivo.\n");
+        return (1);
+    }
+
+    char *line;
+    // Leer línea por línea hasta que get_next_line devuelva NULL (EOF)
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        printf("Línea: %s", line);
+        free(line);  // Libera la memoria después de procesar la línea
+    }
+
+    // Cierra el archivo
+    close(fd);
+
+    return 0;
+}*/
