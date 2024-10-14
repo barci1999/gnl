@@ -11,52 +11,56 @@
 /* ************************************************************************** */
 #include "get_next_line.h"
 
-char	*ft_strchr(const char *s)
+char *make_line(char **container, char *buffer, int bts_read, char *line)
 {
-	int	i;
-	int c;
-	
-	c = '\n';
-	i = 0;
-	while (s[i] != '\0')
-	{
-		if ((char)c == s[i])
-			return ((char *)&s[i]);
-		i++;
-	}
-	if ((char)c == '\0')
-		return ((char *)&s[i]);
-	return (NULL);
-}
-
-char *get_next_line(int fd)
-{	
-	int bts_read ;
-	static char *container;
-	char  *rded_line;
-	char *temp;
 	int i;
 	i = 0;
-	temp = malloc(BUFFER_SIZE + 1 * sizeof(char));
-	if(temp == NULL)
-		free(temp);
-		return;
-	bts_read = 1;
-	while (bts_read > 0)
-	{
-		bts_read = read(fd, &temp, BUFFER_SIZE);
-		if(bts_read < 0)
-		{
-			free(bts_read);
-			return(NULL);
-		}
-		rded_line = ft_strchr(temp);
-		if(rded_line != NULL && *rded_line == '\n')
-		{
-			return(rded_line);
-		}
-			
-	}
-}
-		
+	char *temp;
 
+	while(i < bts_read)
+	{
+		if(buffer[i] == '\n')
+		{
+			temp = ft_strjoin(line,ft_substr(buffer,0, (i + 1)));
+			free(line);
+			line = temp;
+			*container = ft_strdup(&buffer[i + 1]);
+			return(line);
+		}
+		i++;
+	}
+	if(line == NULL)
+		line = ft_strdup(buffer); 
+	else
+	{
+		temp = ft_strjoin(line,buffer);
+		free(line);
+		line = temp;
+	}
+	return(line);
+	}
+  
+char *get_next_line(int fd)
+{
+	static char *container;
+	char buffer[BUFFER_SIZE];
+	int bts_read;
+	char *line;
+
+	line = NULL;
+	if(container)
+	{
+		line = ft_strdup(container);
+		free(container);
+	}
+	container = NULL;
+	while((bts_read = read(fd,(char *)buffer,BUFFER_SIZE)) > 0)
+	{
+		line = make_line(&container,buffer,bts_read,line);
+		if(container)
+			return(line);
+	}
+	if(bts_read == 0 && line)
+		return(line);
+	return(NULL);
+}
