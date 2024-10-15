@@ -11,80 +11,96 @@
 /* ************************************************************************** */
 #include "get_next_line.h"
 
-char *make_line(char **container, char *buffer, int bts_read, char *line)
+char	*make_line(char **container, char *buffer, int bts_read, char *line)
 {
-	int i;
-	i = 0;
-	char *temp;
+	int		i;
+	char	*temp;
+	char 	*str_sub;
 
-	while(i < bts_read)
+	i = 0;
+	while (i < bts_read)
 	{
-		if(buffer[i] == '\n')
+		if (buffer[i] == '\n')
 		{
-			temp = ft_strjoin(line,ft_substr(buffer,0, (i + 1)));
+			str_sub = ft_substr(buffer, 0, i + 1);
+			temp = ft_strjoin(line, str_sub);
 			free(line);
+			free(str_sub);
 			line = temp;
-			*container = ft_strdup(&buffer[i + 1]);
-			return(line);
+			free(*container);
+			if (i + 1 < bts_read)
+			{
+				*container = ft_strdup(&buffer[i + 1]);
+			}
+			else
+				*container = NULL;
+			return (line);
 		}
 		i++;
 	}
-	if(line == NULL)
-		line = ft_strdup(buffer); 
+	if (line == NULL)
+	{
+		line = ft_strdup(buffer);
+	}
 	else
 	{
-		temp = ft_strjoin(line,buffer);
+		temp = ft_strjoin(line, buffer);
 		free(line);
 		line = temp;
 	}
-	return(line);
-	}
-  
-char *get_next_line(int fd)
+	return (line);
+}
+
+char	*get_next_line(int fd)
 {
-	static char *container;
-	char buffer[BUFFER_SIZE];
-	int bts_read;
-	char *line;
+	static char	*container;
+	char		buffer[BUFFER_SIZE + 1];
+	int			bts_read;
+	char		*line;
 
 	line = NULL;
-	if(container)
+	if (container)
 	{
 		line = ft_strdup(container);
 		free(container);
+		container = NULL;
 	}
-	container = NULL;
-	while((bts_read = read(fd,buffer,BUFFER_SIZE)) > 0)
+	bts_read = read(fd, buffer, BUFFER_SIZE);
+	while ((bts_read) > 0)
 	{
 		buffer[bts_read] = '\0';
-		line = make_line(&container,buffer,bts_read,line);
-		if(container)
-			return(line);
+		line = make_line(&container, buffer, bts_read, line);
+		if (container)
+			return (line);
+		bts_read = read(fd, buffer, BUFFER_SIZE);
 	}
-	if(bts_read == 0 && line)
+	if (bts_read < 0)
+	{
+		free(line);
+		return(NULL);
+	}
+	if(line)
 		return(line);
-	return(NULL);
+	return (NULL);
 }
-/*int main(void)
+int main()
 {
-    // Abre el archivo en modo lectura
-    int fd = open("prueba.txt", O_RDONLY);
-    if (fd == -1)
-    {
-        printf("Error al abrir el archivo.\n");
-        return (1);
-    }
+	int fd;
+	char *line;
 
-    char *line;
-    // Leer línea por línea hasta que get_next_line devuelva NULL (EOF)
-    while ((line = get_next_line(fd)) != NULL)
-    {
-        printf("Línea: %s", line);
-        free(line);  // Libera la memoria después de procesar la línea
-    }
-
-    // Cierra el archivo
-    close(fd);
-
-    return 0;
-}*/
+	fd = open("chistes.txt", O_RDONLY);
+	if (fd == -1)
+	{
+		perror("Error abriendo el archivo");
+		return (1);
+	}
+	line = get_next_line(fd);
+	while (line)
+	{
+		printf("%s", line); // Sin "\n".
+		free(line);
+		line = get_next_line(fd);
+	}
+	close(fd);
+	return (0);
+}
